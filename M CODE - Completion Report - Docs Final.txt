@@ -1,0 +1,13 @@
+let
+    Source = Excel.CurrentWorkbook(){[Name="Table1"]}[Content],
+    #"Changed Type" = Table.TransformColumnTypes(Source,{{"OrderKey", type text}, {"OIP Teams Reports", type any}, {"Team Report", type text}, {"Created Date", type datetime}, {"OrderID3", type text}, {"Call ID", Int64.Type}, {"Site1", type text}, {"OrderID", Int64.Type}, {"Disposition/Conversions", type text}, {"Points", Int64.Type}, {"Agent Email", type text}, {"Full Name", type text}, {"OrderID2", type text}, {"RxInvalidReason", type text}, {"DEinvalidreason", type text}, {"SleepStudyInvalidReason", type text}, {"FaxMethod", type text}, {"DoctorAttempts", type text}, {"PatientCall", type text}, {"VOID", type text}, {"ParachuteDenial", type text}, {"AddDoctorFirstName", type text}, {"DoctorNPI", Int64.Type}, {"AddDoctorPhone", Int64.Type}, {"AddDoctorFax", Int64.Type}, {"AddDoctorAddress", type text}, {"AddDrtoSnap", type text}, {"Notes", type any}, {"InteractionID", type any}, {"GSEndorse", type text}, {"NumberDocVerified", type any}, {"Team Name", type text}, {"Commendation", type text}, {"EscalationReason", type text}, {"CallAttempts", type any}, {"Attempts", type any}, {"VoidReason", type text}}),
+    #"Sorted Rows" = Table.Sort(#"Changed Type",{{"OrderKey", Order.Ascending}}),
+    #"Removed Duplicates" = Table.Distinct(#"Sorted Rows", {"OrderKey"}),
+    #"Changed Type1" = Table.TransformColumnTypes(#"Removed Duplicates",{{"Created Date", type date}}),
+    #"Filtered Rows" = Table.SelectRows(#"Changed Type1", each ([Team Report] <> "-")),
+    #"Removed Columns" = Table.RemoveColumns(#"Filtered Rows",{"OIP Teams Reports", "Points", "Agent Email", "DEinvalidreason", "SleepStudyInvalidReason", "FaxMethod", "DoctorAttempts", "PatientCall", "VOID", "ParachuteDenial", "AddDoctorFirstName", "DoctorNPI", "AddDoctorPhone", "AddDoctorFax", "AddDoctorAddress", "AddDrtoSnap", "Notes", "InteractionID", "GSEndorse", "NumberDocVerified", "Team Name", "Commendation", "EscalationReason", "CallAttempts", "Attempts", "VoidReason"}),
+    #"Reordered Columns" = Table.ReorderColumns(#"Removed Columns",{"Created Date", "OrderKey", "Team Report", "OrderID", "OrderID3", "Call ID", "Site1", "Disposition/Conversions", "Full Name", "OrderID2", "RxInvalidReason"}),
+    #"Inserted First Characters" = Table.AddColumn(#"Reordered Columns", "First Characters", each Text.Start([Full Name], 3), type text),
+    #"Reordered Columns1" = Table.ReorderColumns(#"Inserted First Characters",{"Created Date", "OrderKey", "Team Report", "OrderID", "First Characters", "OrderID3", "Call ID", "Site1", "Disposition/Conversions", "Full Name", "OrderID2", "RxInvalidReason"})
+in
+    #"Reordered Columns1"
